@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import CameraFeed from './components/CameraFeed';
 import { Play, Pause } from 'lucide-react';
 import Gallery from './components/Gallery';
@@ -17,7 +18,7 @@ function App() {
     const WEBHOOK_URL = 'https://flowhost.forbiz.com.br/webhook/identificar-membro';
 
     try {
-      if (WEBHOOK_URL && WEBHOOK_URL !== '[COLE_SEU_WEBHOOK_AQUI]') {
+      if (WEBHOOK_URL && WEBHOOK_URL !== 'https://flowhost.forbiz.com.br/webhook/identificar-membro') {
         await fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: {
@@ -70,15 +71,15 @@ function App() {
             isDebouncing={status.state === 'coolDown' || status.state === 'sending'}
             isPaused={isPaused}
           />
-          
+
           {/* Play/Pause Controls */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-4">
-             <button
-               onClick={() => setIsPaused(!isPaused)}
-               className={`flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold shadow-lg backdrop-blur-sm transition-transform active:scale-95 border ${isPaused ? 'bg-green-600 hover:bg-green-500 text-white border-green-400' : 'bg-orange-600 hover:bg-orange-500 text-white border-orange-400'}`}
-             >
-               {isPaused ? <><Play className="w-5 h-5"/> Iniciar Reconhecimento</> : <><Pause className="w-5 h-5"/> Pausar Reconhecimento</>}
-             </button>
+            <button
+              onClick={() => setIsPaused(!isPaused)}
+              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold shadow-lg backdrop-blur-sm transition-transform active:scale-95 border ${isPaused ? 'bg-green-600 hover:bg-green-500 text-white border-green-400' : 'bg-orange-600 hover:bg-orange-500 text-white border-orange-400'}`}
+            >
+              {isPaused ? <><Play className="w-5 h-5" /> Iniciar Reconhecimento</> : <><Pause className="w-5 h-5" /> Pausar Reconhecimento</>}
+            </button>
           </div>
         </div>
 

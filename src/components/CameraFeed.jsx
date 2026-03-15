@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import * as faceapi from 'face-api.js';
+import * as faceapi from '@vladmandic/face-api';
 import { FlipHorizontal } from 'lucide-react';
 
 function CameraFeed({ onCapture, isDebouncing, isPaused }) {
