@@ -18,7 +18,7 @@ function App() {
     const WEBHOOK_URL = 'https://flowhost.forbiz.com.br/webhook/identificar-membro';
 
     try {
-      if (WEBHOOK_URL && WEBHOOK_URL !== 'https://flowhost.forbiz.com.br/webhook/identificar-membro') {
+      if (WEBHOOK_URL) {
         await fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: {
