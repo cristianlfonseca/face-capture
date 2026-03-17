@@ -23,6 +23,11 @@ function CameraFeed({ onCapture, isDebouncing, isPaused }) {
     const loadModels = async () => {
       try {
         console.log("Iniciando download dos modelos do Face API...");
+        
+        // Inicializar backend do TensorFlow explicitamente
+        await faceapi.tf.setBackend('webgl');
+        await faceapi.tf.ready();
+        
         await Promise.all([
           faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
           faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
