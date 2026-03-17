@@ -8,6 +8,8 @@ function CameraFeed({ onCapture, isDebouncing, isPaused }) {
   const containerRef = useRef(null);
   
   const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [modelError, setModelError] = useState(null);
+  const [cameraStarted, setCameraStarted] = useState(false);
   const [facingMode, setFacingMode] = useState('user'); // 'user' ou 'environment'
   const [stream, setStream] = useState(null);
   
@@ -16,19 +18,28 @@ function CameraFeed({ onCapture, isDebouncing, isPaused }) {
 
   // Carregar os modelos do face-api.js
   useEffect(() => {
+    let isMounted = true;
+    
     const loadModels = async () => {
       try {
+        console.log("Iniciando download dos modelos do Face API...");
         await Promise.all([
           faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
           faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
           faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
         ]);
-        setModelsLoaded(true);
+        console.log("Modelos carregados com sucesso!");
+        if (isMounted) setModelsLoaded(true);
       } catch (err) {
-        console.error("Erro ao carregar modelos do face-api.js", err);
+        console.error("Erro fatal ao carregar modelos do face-api.js:", err);
+        if (isMounted) setModelError(err.message || String(err));
       }
     };
     loadModels();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Iniciar a câmera
@@ -45,8 +56,10 @@ function CameraFeed({ onCapture, isDebouncing, isPaused }) {
       if (videoRef.current) {
         videoRef.current.srcObject = newStream;
       }
+      setCameraStarted(true);
     } catch (err) {
       console.error("Erro ao acessar a câmera: ", err);
+      setCameraStarted(false);
     }
   }, [facingMode]);
 
@@ -164,9 +177,29 @@ function CameraFeed({ onCapture, isDebouncing, isPaused }) {
   return (
     <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden" ref={containerRef}>
       
-      {!modelsLoaded && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900">
-          <div className="text-yellow-400 font-bold animate-pulse text-lg">Carregando IA...</div>
+      {(!modelsLoaded || !cameraStarted || modelError) && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900 flex-col gap-4 p-6 text-center">
+          {modelError ? (
+            <div className="bg-red-950/80 border-2 border-red-500 rounded-xl p-6 max-w-lg shadow-2xl">
+              <h2 className="text-red-400 font-bold text-xl mb-2">Erro Crítico ao Inicializar a IA</h2>
+              <p className="text-red-200 text-sm mb-4">
+                O navegador não conseguiu baixar ou compilar os modelos de inteligência artificial. Isso pode ocorrer por bloqueadores de anúncios (AdBlock), falta de suporte a WebGL, ou problemas de rede.
+              </p>
+              <div className="bg-black/50 p-3 rounded font-mono text-xs text-red-300 break-words text-left">
+                {modelError}
+              </div>
+            </div>
+          ) : !modelsLoaded ? (
+            <>
+              <div className="text-yellow-400 font-bold animate-pulse text-xl">Baixando IA (Modelos Analíticos)...</div>
+              <div className="text-slate-400 text-sm max-w-xs">Isso pode levar alguns segundos dependendo da velocidade da internet.</div>
+            </>
+          ) : (
+            <>
+              <div className="text-yellow-400 font-bold animate-pulse text-xl">Conectando Câmera...</div>
+              <div className="text-slate-400 text-sm max-w-xs">Por favor, permita o acesso à câmera no seu navegador.</div>
+            </>
+          )}
         </div>
       )}
 
